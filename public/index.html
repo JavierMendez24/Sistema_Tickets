@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte Técnico - Tickets</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <div id="app">
+        <!-- NAVBAR -->
+        <nav class="navbar" id="navbar" style="display: none;">
+            <div class="nav-container">
+                <a href="#/dashboard" class="logo">
+                    <img src="img/logoTickets.png" alt="TechSupport" class="logo-img" id="logo-img">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="#/dashboard" id="nav-dashboard">Dashboard</a></li>
+                    <li><a href="#/tickets" id="nav-tickets">Tickets</a></li>
+                    <li><a href="#/admin" id="nav-admin" style="display: none;">Admin</a></li>
+                    <!-- notificaciones bell simple -->
+                    <li id="notif-bell" style="position: relative;">
+                        <a href="#/tickets" id="notif-toggle"><i class="fas fa-bell"></i> <span id="notif-count" class="badge" style="display:none;">0</span></a>
+                    </li>
+                    <li>
+                        <a href="#" id="dark-mode-toggle" title="Cambiar modo oscuro/claro">
+                            <i class="fas fa-moon" id="dark-mode-icon"></i>
+                        </a>
+                    </li>
+                    <li><a href="#" id="logout">Cerrar sesión</a></li>
+                </ul>
+                <div class="user-info" id="user-info"></div>
+            </div>
+        </nav>
+
+        <!-- CONTENEDOR PRINCIPAL -->
+        <main id="main-content">
+            <!-- SECCIÓN LOGIN (visible por defecto) -->
+            <section id="login-section" class="section active">
+                <div class="card login-card">
+                    <h2><i class="fas fa-lock"></i> Iniciar Sesión</h2>
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="login-email" required placeholder="correo@empresa.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="login-password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn-primary">Entrar</button>
+                        <p class="text-center">¿No tienes cuenta? <a href="#/registro">Regístrate</a></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECCIÓN REGISTRO -->
+            <section id="registro-section" class="section">
+                <div class="card login-card">
+                    <h2><i class="fas fa-user-plus"></i> Registro</h2>
+                    <form id="registro-form">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="reg-nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="reg-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Contraseña</label>
+                            <input type="password" id="reg-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Departamento</label>
+                            <select id="reg-departamento" required>
+                                <option value="">Selecciona...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Registrarse</button>
+                        <p class="text-center">¿Ya tienes cuenta? <a href="#/login">Inicia sesión</a></p>
+                    </form>
+                </div>
+            </section>
+
+            <!-- DASHBOARD (resumen) -->
+            <section id="dashboard-section" class="section">
+                <h1>Dashboard</h1>
+                <div class="cards-container" id="dashboard-cards">
+                    <!-- se llenará con JS -->
+                </div>
+            </section>
+
+            <!-- LISTA DE TICKETS -->
+            <section id="tickets-section" class="section">
+                <div class="section-header">
+                    <h1>Tickets de Soporte</h1>
+                    <button class="btn-primary" id="btn-nuevo-ticket"><i class="fas fa-plus"></i> Nuevo Ticket</button>
+                </div>
+                <!-- Filtros -->
+                <div class="filters">
+                    <input type="text" id="filter-titulo" placeholder="Buscar por título...">
+                    <select id="filter-estado">
+                        <option value="">Todos los estados</option>
+                        <option value="abierto">Abierto</option>
+                        <option value="en progreso">En progreso</option>
+                        <option value="cerrado">Cerrado</option>
+                    </select>
+                    <select id="filter-departamento" style="display: none;"> <!-- solo admin ve este -->
+                        <option value="">Todos los departamentos</option>
+                    </select>
+                </div>
+                <div class="table-responsive">
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Título</th>
+                                <th>Estado</th>
+                                <th>Prioridad</th>
+                                <th>Departamento</th>
+                                <th>Creado por</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tickets-list">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- MODAL PARA CREAR/EDITAR TICKET -->
+            <div id="ticket-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="modal-title">Nuevo Ticket</h2>
+                    <form id="ticket-form">
+                        <input type="hidden" id="ticket-id">
+                        <div class="form-group">
+                            <label>Título</label>
+                            <input type="text" id="ticket-titulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Descripción</label>
+                            <textarea id="ticket-descripcion" rows="4"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select id="ticket-prioridad">
+                                <option value="baja">Baja</option>
+                                <option value="media" selected>Media</option>
+                                <option value="alta">Alta</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="campo-estado-edicion" style="display: none;">
+                            <label>Estado</label>
+                            <select id="ticket-estado">
+                                <option value="abierto">Abierto</option>
+                                <option value="en progreso">En progreso</option>
+                                <option value="cerrado">Cerrado</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MODAL DETALLE TICKET -->
+            <div id="detalle-ticket-modal" class="modal">
+                <div class="modal-content" style="max-width: 700px;">
+                    <span class="close-detalle">&times;</span>
+                    <h2>Detalle del Ticket #<span id="detalle-id"></span></h2>
+                    <div class="detalle-info">
+                        <p><strong>Título:</strong> <span id="detalle-titulo"></span></p>
+                        <p><strong>Descripción:</strong> <span id="detalle-descripcion"></span></p>
+                        <p><strong>Estado:</strong> <span id="detalle-estado"></span></p>
+                        <p><strong>Prioridad:</strong> <span id="detalle-prioridad"></span></p>
+                        <p><strong>Departamento:</strong> <span id="detalle-departamento"></span></p>
+                        <p><strong>Creado por:</strong> <span id="detalle-usuario"></span></p>
+                        <p><strong>Fecha creación:</strong> <span id="detalle-fecha"></span></p>
+                    </div>
+            
+                    <!-- SECCIÓN DE COMENTARIOS (opcional básico) -->
+                    <h3>Comentarios</h3>
+                    <div id="comentarios-lista"
+                        style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; padding: 1rem; margin-bottom: 1rem;">
+                        <!-- Los comentarios se cargarán aquí -->
+                    </div>
+            
+                    <form id="nuevo-comentario-form">
+                        <div class="form-group">
+                            <textarea id="comentario-texto" rows="2" placeholder="Agregar un comentario..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Enviar comentario</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- SECCIÓN ADMIN (solo visible para admin) -->
+            <section id="admin-section" class="section">
+                <h1>Administración de Usuarios</h1>
+                <button class="btn-primary" id="btn-nuevo-usuario"><i class="fas fa-user-plus"></i> Nuevo Usuario</button>
+                <div class="table-responsive">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Departamento</th>
+                                <th>Rol</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <!-- JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- MODAL PARA USUARIO (admin) -->
+            <div id="user-modal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2 id="user-modal-title">Nuevo Usuario</h2>
+                    <form id="user-form">
+                        <input type="hidden" id="user-id">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="user-nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="user-email" required>
+                        </div>
+                        <div class="form-group" id="user-password-group">
+                            <label>Contraseña (solo para nuevo usuario)</label>
+                            <input type="password" id="user-password">
+                        </div>
+                        <div class="form-group">
+                            <label>Departamento</label>
+                            <select id="user-departamento" required>
+                                <!-- opciones desde API -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Rol</label>
+                            <select id="user-rol">
+                                <option value="user">Usuario</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Guardar</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Contenedor para notificaciones flotantes -->
+    <div id="notificaciones-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000; pointer-events: none;"></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/tickets.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/darkmode.js"></script>
+
+    <!-- Spinner de carga (oculto por defecto) -->
+    <div id="loading-overlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; justify-content: center; align-items: center;">
+        <div class="spinner"></div>
+    </div>
+</body>
+
+</html>
